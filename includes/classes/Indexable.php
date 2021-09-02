@@ -487,6 +487,12 @@ abstract class Indexable {
 		$meta_types['datetime'] = '1970-01-01 00:00:01';
 		$meta_types['time']     = '00:00:01';
 
+		// hide the warning the is emitted by \DateTime.
+		// @see: http://php.net/manual/en/datetime.construct.php#116480
+		// @see: https://stackoverflow.com/questions/45856223/can-i-avoid-datetime-construct-warning-on-invalid-date
+		$oldErrorReporting = error_reporting();
+		error_reporting( $oldErrorReporting & ~E_WARNING );
+
 		try {
 			// is this is a recognizable date format?
 			$new_date  = new \DateTime( $meta_value, \wp_timezone() );
@@ -504,6 +510,9 @@ abstract class Indexable {
 			// if $meta_value is not a recognizable date format, DateTime will throw an exception,
 			// just catch it and move on.
 		}
+
+		// reset error reporting.
+		error_reporting( $oldErrorReporting );
 
 		return $meta_types;
 	}
